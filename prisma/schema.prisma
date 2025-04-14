@@ -4,16 +4,51 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-// create your own model below
-model Sample {
+model Category {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isDeleted Boolean
+  events    Event[]
 
-  @@map("samples")
+  @@map("categories")
+}
+
+model Organizer {
+  id         Int      @id @default(autoincrement())
+  name       String
+  aboutUs    String
+  profilePic String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isDeleted  Boolean
+  events     Event[]
+
+  @@map("organizers")
+}
+
+model Event {
+  id          Int       @id @default(autoincrement())
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+  organizerId Int
+  organizer   Organizer @relation(fields: [organizerId], references: [id])
+  slug        String
+  name        String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  location    String
+  thumbnail   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isDeleted   Boolean
+
+  @@map("events")
 }
