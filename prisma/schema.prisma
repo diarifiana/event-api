@@ -12,6 +12,7 @@ datasource db {
 model Category {
   id        Int      @id @default(autoincrement())
   name      String
+  slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isDeleted Boolean
@@ -21,14 +22,15 @@ model Category {
 }
 
 model Organizer {
-  id         Int      @id @default(autoincrement())
-  name       String
-  aboutUs    String
-  profilePic String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  isDeleted  Boolean
-  events     Event[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  aboutUs      String
+  profilePic   String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isDeleted    Boolean
+  events       Event[]
+  transactions Transaction[]
 
   @@map("organizers")
 }
@@ -49,6 +51,100 @@ model Event {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   isDeleted   Boolean
+  tickets     Ticket[]
+  vouchers    Voucher[]
 
   @@map("events")
+}
+
+model User {
+  id             Int           @id @default(autoincrement())
+  referralNumber Int
+  name           String
+  email          String
+  password       String
+  point          String
+  role           String
+  profilePic     String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  isDeleted      Boolean
+  transactions   Transaction[]
+
+  @@map("users")
+}
+
+model Ticket {
+  id            Int           @id @default(autoincrement())
+  eventId       Int
+  event         Event         @relation(fields: [eventId], references: [id])
+  ticketType    String
+  price         Int
+  totalSeat     Int
+  availableSeat Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  isDeleted     Boolean
+  transactions  Transaction[]
+
+  @@map("tickets")
+}
+
+model Coupon {
+  id            Int           @id @default(autoincrement())
+  code          String
+  discountPrice Int
+  isUsed        Boolean
+  validFrom     DateTime
+  validUntil    DateTime
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  isDeleted     Boolean
+  transactions  Transaction[]
+
+  @@map("coupons")
+}
+
+model Voucher {
+  id             Int           @id @default(autoincrement())
+  eventId        Int
+  event          Event         @relation(fields: [eventId], references: [id])
+  code           String
+  discountAmount Int
+  startDate      DateTime
+  endDate        DateTime
+  quantity       Int
+  claimed        Int
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  isDeleted      Boolean
+  transactions   Transaction[]
+
+  @@map("vouchers")
+}
+
+model Transaction {
+  id                    Int        @id @default(autoincrement())
+  userId                Int
+  user                  User       @relation(fields: [userId], references: [id])
+  ticketId              Int
+  ticket                Ticket     @relation(fields: [ticketId], references: [id]) // opt + shift + f
+  couponId              Int
+  coupon                Coupon     @relation(fields: [couponId], references: [id])
+  voucherId             Int
+  voucher               Voucher    @relation(fields: [voucherId], references: [id])
+  quantity              Int
+  totalAmount           Int
+  status                String
+  usePoints             Boolean
+  paymentProof          String
+  paymentExpiredAt      DateTime?
+  confirmationExpiredAt DateTime?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  isDeleted             Boolean
+  organizerId           Int?
+  organizer             Organizer? @relation(fields: [organizerId], references: [id])
+
+  @@map("transactions")
 }
