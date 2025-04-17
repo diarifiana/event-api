@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -29,7 +30,8 @@ model User {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   isDeleted      Boolean          @default(false)
-  organizerId    Int
+  deletedAt      DateTime
+  // organizerId    Int
   organizer      Organizer?
   referralCoupon ReferralCoupon[]
   pointDetails   PointDetail[]
@@ -121,8 +123,8 @@ model Voucher {
   event          Event         @relation(fields: [eventId], references: [id])
   code           String
   discountAmount Int
-  startDate      Int
-  endDate        Int
+  startDate      DateTime
+  endDate        DateTime
   qty            Int
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
