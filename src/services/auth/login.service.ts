@@ -6,12 +6,6 @@ import { comparePassword } from "../../lib/argon";
 import { ApiError } from "../../utils/api-error";
 
 export const loginService = async (body: Pick<User, "email" | "password">) => {
-  // cek dlu email apakah sudah ada di db ato belom
-  // kalo ga ada throw erro
-  //  kalo ada cek pwnya sesuai ato tidak
-  // kalo ga sesuai throw error
-  // kalo sesuai kirim data user tsb dan juga token jwt
-
   const { email, password } = body;
 
   const user = await prisma.user.findFirst({
