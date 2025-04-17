@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -15,4 +14,99 @@ model Sample {
   updatedAt DateTime @updatedAt
 
   @@map("samples")
+}
+
+model User {
+  id             Int              @id @default(autoincrement())
+  referralNumber String           @unique
+  fullName       String
+  userName       String
+  email          String
+  password       String
+  role           Role             @default(USER)
+  profilePic     String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  isDeleted      Boolean          @default(false)
+  pointDetails   PointsDetail[]
+  Organizer      Organizer?
+  ReferralCoupon ReferralCoupon[]
+
+  @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Organizer {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  name       String
+  aboutUs    String?
+  profilePic String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isDeleted  Boolean  @default(false)
+  events     Event[]  @relation("OrganizerToEvent")
+
+  @@map("organizers")
+}
+
+model ReferralCoupon {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+  referralCoupon String   @unique
+  amount         Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  expiredAt      DateTime
+  isClaimed      Boolean  @default(false)
+  isDeleted      Boolean  @default(false)
+
+  @@map("referralCoupons")
+}
+
+model PointsDetail {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiredAt DateTime
+  isDeleted Boolean  @default(false)
+
+  @@map("pointDetails")
+}
+
+model Event {
+  id          Int       @id @default(autoincrement())
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+  organizerId Int
+  organizer   Organizer @relation("OrganizerToEvent", fields: [organizerId], references: [id])
+  slug        String    @unique
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  location    String
+  thumbnail   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isDeleted   Boolean   @default(false)
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  events Event[]
 }
