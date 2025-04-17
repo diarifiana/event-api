@@ -1,9 +1,9 @@
 import { User } from "@prisma/client";
-import prisma from "../../config/prisma";
-import { ApiError } from "../../utils/api-error";
-import { comparePassword } from "../../lib/argon";
 import { sign } from "jsonwebtoken";
 import { JWT_SECRET_KEY } from "../../config/env";
+import prisma from "../../config/prisma";
+import { comparePassword } from "../../lib/argon";
+import { ApiError } from "../../utils/api-error";
 
 export const loginService = async (body: Pick<User, "email" | "password">) => {
   // cek dlu email apakah sudah ada di db ato belom

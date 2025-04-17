@@ -1,13 +1,10 @@
-import fs from "fs/promises";
-import Handlebars from "handlebars";
-import { nanoid } from "nanoid";
-import { join } from "path";
-import prisma from "../../config/prisma";
-import { ApiError } from "../../utils/api-error";
-import { hashPassword } from "../../lib/argon";
-import { validateReferralNumber } from "../../validators/validateReferralNumber";
-import { addMonths } from "../../utils/addMonth";
 import { Role, User } from "@prisma/client";
+import { nanoid } from "nanoid";
+import prisma from "../../config/prisma";
+import { hashPassword } from "../../lib/argon";
+import { addMonths } from "../../utils/addMonth";
+import { ApiError } from "../../utils/api-error";
+import { validateReferralNumber } from "../../validators/validateReferralNumber";
 
 // input data body
 // user data
