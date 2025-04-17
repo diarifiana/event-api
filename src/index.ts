@@ -6,6 +6,7 @@ import loginRouter from "./routes/login.router";
 import eventRouter from "./routes/event.router";
 import categoryRouter from "./routes/category.router";
 import voucherRouter from "./routes/voucher.router";
+import transactionRouter from "./routes/transaction.router";
 
 import { errorMiddleware } from "./middleware/error.middleware";
 
@@ -19,6 +20,7 @@ app.use("/login", loginRouter);
 app.use("/events", eventRouter);
 app.use("/categories", categoryRouter);
 app.use("/vouchers", voucherRouter);
+app.use("/transactions", transactionRouter);
 
 app.use(errorMiddleware);
 
