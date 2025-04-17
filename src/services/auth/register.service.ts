@@ -55,7 +55,7 @@ export const registerService = async (registerBody: RegisterBody) => {
         role: registerBody.body.role as Role,
       },
       include: {
-        Organizer: true,
+        organizer: true,
       },
       omit: { password: true },
     });
@@ -86,7 +86,7 @@ export const registerService = async (registerBody: RegisterBody) => {
           },
         });
         const now = new Date();
-        const existingPoint = await tx.pointsDetail.findFirst({
+        const existingPoint = await tx.pointDetail.findFirst({
           where: {
             userId: referral.id,
             expiredAt: {
@@ -97,7 +97,7 @@ export const registerService = async (registerBody: RegisterBody) => {
 
         if (existingPoint) {
           // ✅ TAMBAH NILAI POINT-NYA
-          await tx.pointsDetail.update({
+          await tx.pointDetail.update({
             where: { id: existingPoint.id },
             data: {
               amount: existingPoint.amount + 30000,
@@ -105,7 +105,7 @@ export const registerService = async (registerBody: RegisterBody) => {
           });
         } else {
           // KALAU BELUM ADA POINT, BUAT BARU
-          await tx.pointsDetail.create({
+          await tx.pointDetail.create({
             data: {
               userId: referral.id,
               amount: 30000,

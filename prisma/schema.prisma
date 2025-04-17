@@ -28,16 +28,13 @@ model User {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   isDeleted      Boolean          @default(false)
-  pointDetails   PointsDetail[]
-  Organizer      Organizer?
-  ReferralCoupon ReferralCoupon[]
+  organizerId    Int
+  organizer      Organizer?
+  referralCoupon ReferralCoupon[]
+  pointDetails   PointDetail[]
+  transactions   Transaction[]
 
   @@map("users")
-}
-
-enum Role {
-  USER
-  ADMIN
 }
 
 model Organizer {
@@ -56,28 +53,29 @@ model Organizer {
 }
 
 model ReferralCoupon {
-  id             Int      @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   userId         Int
-  user           User     @relation(fields: [userId], references: [id])
-  referralCoupon String   @unique
+  user           User          @relation(fields: [userId], references: [id])
+  referralCoupon String        @unique
   amount         Int
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
   expiredAt      DateTime
-  isClaimed      Boolean  @default(false)
-  isDeleted      Boolean  @default(false)
+  isClaimed      Boolean       @default(false)
+  isDeleted      Boolean       @default(false)
+  transaction    Transaction[]
 
   @@map("referralCoupons")
 }
 
-model PointsDetail {
+model PointDetail {
   id        Int      @id @default(autoincrement())
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   amount    Int
+  expiredAt DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  expiredAt DateTime
   isDeleted Boolean  @default(false)
 
   @@map("pointDetails")
@@ -91,14 +89,18 @@ model Event {
   organizer   Organizer @relation("OrganizerToEvent", fields: [organizerId], references: [id])
   slug        String    @unique
   name        String
-  description String?
+  description String
   startDate   DateTime
   endDate     DateTime
-  location    String
+  location    Location
   thumbnail   String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   isDeleted   Boolean   @default(false)
+  vouchers    Voucher[]
+  tickets     Ticket[]
+
+  @@map("events")
 }
 
 model Category {
@@ -107,6 +109,104 @@ model Category {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isDeleted Boolean  @default(false)
+  events    Event[]
 
-  events Event[]
+  @@map("categories")
+}
+
+model Voucher {
+  id             Int           @id @default(autoincrement())
+  eventId        Int
+  event          Event         @relation(fields: [eventId], references: [id])
+  code           String
+  discountAmount Int
+  startDate      Int
+  endDate        Int
+  qty            Int
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  isDeleted      Boolean       @default(false)
+  transactions   Transaction[]
+
+  @@map("vouchers")
+}
+
+model Ticket {
+  id           Int           @id @default(autoincrement())
+  eventId      Int
+  event        Event         @relation(fields: [eventId], references: [id])
+  ticketType   String
+  price        Int
+  qty          Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isDeleted    Boolean       @default(false)
+  transactions Transaction[]
+
+  @@map("tickets")
+}
+
+model Transaction {
+  id               Int            @id @default(autoincrement())
+  uuid             String         @unique @default(uuid())
+  userId           Int
+  user             User           @relation(fields: [userId], references: [id])
+  ticketId         Int
+  ticket           Ticket         @relation(fields: [ticketId], references: [id])
+  referralCouponId Int
+  coupon           ReferralCoupon @relation(fields: [referralCouponId], references: [id])
+  voucherId        Int
+  voucher          Voucher        @relation(fields: [voucherId], references: [id])
+  qty              Int
+  totalAmount      Int
+  status           Status
+  usePoints        Boolean
+  paymentProof     String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  isDeleted        Boolean        @default(false)
+  review           Review[]
+
+  @@map("transactions")
+}
+
+model Review {
+  id            Int         @id @default(autoincrement())
+  transactionId Int
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  review        String
+  rating        Rating
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  isDeleted     Boolean     @default(false)
+
+  @@map("reviews")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  WAITING_FOR_PAYMENT
+  WAITING_CONFIRMATION
+  REJECTED
+  EXPIRED
+  CANCELED
+  DONE
+}
+
+enum Rating {
+  BAD
+  GOOD
+  EXCELLENT
+}
+
+enum Location {
+  JAKARTA
+  BANDUNG
+  SURABAYA
+  YOGYAKARTA
+  SEMARANG
 }
