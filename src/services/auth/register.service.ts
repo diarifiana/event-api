@@ -1,26 +1,13 @@
 import { Role, User } from "@prisma/client";
+import fs from "fs/promises";
+import Handlebars from "handlebars";
 import { nanoid } from "nanoid";
+import { join } from "path";
 import prisma from "../../config/prisma";
 import { hashPassword } from "../../lib/argon";
-import { addMonths } from "../../utils/addMonth";
 import { ApiError } from "../../utils/api-error";
 import { validateReferralNumber } from "../../validators/validateReferralNumber";
-
-// input data body
-// user data
-// referral yang dipake
-// organizer data
-
-// ngecek apakah user sudah terdaftar
-// apakah referral keisi & benar
-// hasing password
-// table user (dapet id user yang baru)
-// kalaua refereal kesisi dan benar -> bikin table voucher -> bikin table point (refernsinya dari id user yang baru)
-// dikirim email
-// interface RegisterBody {
-//   body: Omit<User, "referralNumber">;
-//   referralNumber?: string;
-// }
+import { addMonths } from "../../utils/addMonth";
 
 interface RegisterBody {
   body: Omit<User, "referralNumber" | "role"> & { role: "USER" | "ADMIN" };
@@ -45,6 +32,7 @@ export const registerService = async (registerBody: RegisterBody) => {
   const hashedPassword = await hashPassword(registerBody.body.password);
 
   const code = nanoid(6);
+
   const newUser = await prisma.$transaction(async (tx) => {
     // const newUser = await prisma.user.create({
     const createdUser = await tx.user.create({
@@ -52,7 +40,7 @@ export const registerService = async (registerBody: RegisterBody) => {
         ...registerBody.body,
         password: hashedPassword,
         referralNumber: code,
-        role: registerBody.body.role as Role,
+        role: registerBody.organizerData ? "ADMIN" : ("USER" as Role),
       },
       include: {
         organizer: true,
@@ -60,7 +48,7 @@ export const registerService = async (registerBody: RegisterBody) => {
       omit: { password: true },
     });
 
-    if (registerBody.body.role === "ADMIN" && registerBody.organizerData) {
+    if (registerBody.organizerData) {
       await tx.organizer.create({
         data: {
           userId: createdUser.id,
@@ -96,7 +84,7 @@ export const registerService = async (registerBody: RegisterBody) => {
         });
 
         if (existingPoint) {
-          // ✅ TAMBAH NILAI POINT-NYA
+          // TAMBAH NILAI POINT-NYA
           await tx.pointDetail.update({
             where: { id: existingPoint.id },
             data: {
@@ -118,13 +106,13 @@ export const registerService = async (registerBody: RegisterBody) => {
     return createdUser;
   });
 
-  //   const templatePath = join(__dirname, "../../templates/welcome-email.hbs");
+  // const templatePath = join(__dirname, "../../templates/welcome-email.hbs");
 
-  //   const templateSource = await (await fs.readFile(templatePath)).toString();
+  // const templateSource = await (await fs.readFile(templatePath)).toString();
 
-  //   const compiledTemplate = Handlebars.compile(templateSource);
+  // const compiledTemplate = Handlebars.compile(templateSource);
 
-  //   const html = compiledTemplate({ fullName: registerBody.body.fullName });
+  // const html = compiledTemplate({ fullName: registerBody.body.fullName });
 
   // transporter.sendMail({
   //   to: body.email,

@@ -30,8 +30,7 @@ model User {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   isDeleted      Boolean          @default(false)
-  deletedAt      DateTime
-  // organizerId    Int
+  deletedAt      DateTime?
   organizer      Organizer?
   referralCoupon ReferralCoupon[]
   pointDetails   PointDetail[]
