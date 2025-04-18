@@ -150,25 +150,27 @@ model Ticket {
 }
 
 model Transaction {
-  id                 Int            @id @default(autoincrement())
-  uuid               String         @unique @default(uuid())
+  id                 Int             @id @default(autoincrement())
+  uuid               String          @unique @default(uuid())
   userId             Int
-  user               User           @relation(fields: [userId], references: [id])
+  user               User            @relation(fields: [userId], references: [id])
   ticketId           Int
-  ticket             Ticket         @relation(fields: [ticketId], references: [id])
-  referralCouponCode String
-  coupon             ReferralCoupon @relation(fields: [referralCouponCode], references: [referralCoupon])
-  voucherCode        String
-  voucher            Voucher        @relation(fields: [voucherCode], references: [code])
+  ticket             Ticket          @relation(fields: [ticketId], references: [id])
+  referralCouponCode String          @default("")
+  voucherCode        String          @default("")
   qty                Int
   totalAmount        Int
-  status             Status         @default(WAITING_FOR_PAYMENT)
-  usePoints          Boolean        @default(false)
+  status             Status          @default(WAITING_FOR_PAYMENT)
+  usePoints          Boolean         @default(false)
   paymentProof       String?
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  isDeleted          Boolean        @default(false)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  isDeleted          Boolean         @default(false)
   review             Review[]
+  referralCoupon     ReferralCoupon? @relation(fields: [referralCouponId], references: [id])
+  referralCouponId   Int?
+  voucher            Voucher?        @relation(fields: [voucherId], references: [id])
+  voucherId          Int?
 
   @@map("transactions")
 }
