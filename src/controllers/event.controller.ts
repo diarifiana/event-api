@@ -5,6 +5,7 @@ import { getEventService } from "../services/events/get-event.service";
 import { getEventsByCategoryService } from "../services/events/get-events-by-category.service";
 import { getEventsByLocationService } from "../services/events/get-events-by-location.service";
 import { Location } from "@prisma/client";
+import { updateEventService } from "../services/events/update-event.service";
 
 export const createEventController = async (
   req: Request,
@@ -67,6 +68,19 @@ export const getEventsByLocationController = async (
     const result = await getEventsByLocationService(
       req.params.slug as Location
     );
+    res.status(200).send(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateEventController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await updateEventService(Number(req.params.id), req.body);
     res.status(200).send(result);
   } catch (error) {
     next(error);
