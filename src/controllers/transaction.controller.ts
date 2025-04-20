@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { createTransactionService } from "../services/transactions/create-transaction.service";
 import { getTransactionsService } from "../services/transactions/get-transactions.service";
-import { handleTransactionService } from "../services/transactions/handle-transaction.service";
+import { manageTransactionService } from "../services/transactions/manage-transaction.service";
 import { getTransactionProofService } from "../services/transactions/get-transaction-proof.service";
 
 export const createTransactionController = async (
@@ -30,13 +30,13 @@ export const getTransactionsController = async (
   }
 };
 
-export const handleTransactionsController = async (
+export const manageTransactionsController = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const result = await handleTransactionService(
+    const result = await manageTransactionService(
       Number(req.params.id),
       req.body.action
     );

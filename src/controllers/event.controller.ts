@@ -53,7 +53,8 @@ export const getEventsByCategoryController = async (
   next: NextFunction
 ) => {
   try {
-    const result = await getEventsByOrganizerService(req.body.id);
+    const result = await getEventsByCategoryService(req.params.slug);
+
     res.status(200).send(result);
   } catch (error) {
     next(error);

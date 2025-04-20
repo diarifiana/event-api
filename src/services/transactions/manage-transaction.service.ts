@@ -4,7 +4,7 @@ import { ApiError } from "../../utils/api-error";
 import fs from "fs/promises";
 import { transporter } from "../../lib/nodemailer";
 
-export const handleTransactionService = async (
+export const manageTransactionService = async (
   transactionId: number,
   action: "accept" | "reject"
 ) => {

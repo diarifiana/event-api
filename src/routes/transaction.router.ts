@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   createTransactionController,
   getTransactionsController,
-  handleTransactionsController,
+  manageTransactionsController,
 } from "../controllers/transaction.controller";
 import { verifyToken } from "../lib/jwt";
 import { verifyRole } from "../middleware/role.middleware";
@@ -20,7 +20,7 @@ router.patch(
   "/manage/:id",
   verifyToken,
   verifyRole(["ADMIN"]),
-  handleTransactionsController
+  manageTransactionsController
 );
 
 export default router;
