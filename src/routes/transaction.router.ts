@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createTransactionController,
   getTransactionsController,
+  handleTransactionsController,
 } from "../controllers/transaction.controller";
 import { verifyToken } from "../lib/jwt";
 import { verifyRole } from "../middleware/role.middleware";
@@ -15,5 +16,11 @@ router.post(
   createTransactionController
 );
 router.get("/", getTransactionsController);
+router.patch(
+  "/manage/:id",
+  verifyToken,
+  verifyRole(["ADMIN"]),
+  handleTransactionsController
+);
 
 export default router;

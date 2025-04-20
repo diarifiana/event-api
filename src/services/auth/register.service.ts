@@ -8,6 +8,7 @@ import { hashPassword } from "../../lib/argon";
 import { ApiError } from "../../utils/api-error";
 import { validateReferralNumber } from "../../validators/validateReferralNumber";
 import { addMonths } from "../../utils/addMonth";
+import { transporter } from "../../lib/nodemailer";
 
 interface RegisterBody {
   body: Omit<User, "referralNumber" | "role"> & { role: "USER" | "ADMIN" };
@@ -106,19 +107,19 @@ export const registerService = async (registerBody: RegisterBody) => {
     return createdUser;
   });
 
-  // const templatePath = join(__dirname, "../../templates/welcome-email.hbs");
+  const templatePath = join(__dirname, "../../templates/welcome-email.hbs");
 
-  // const templateSource = await (await fs.readFile(templatePath)).toString();
+  const templateSource = await (await fs.readFile(templatePath)).toString();
 
-  // const compiledTemplate = Handlebars.compile(templateSource);
+  const compiledTemplate = Handlebars.compile(templateSource);
 
-  // const html = compiledTemplate({ fullName: registerBody.body.fullName });
+  const html = compiledTemplate({ fullName: registerBody.body.fullName });
 
-  // transporter.sendMail({
-  //   to: body.email,
-  //   subject: "welcome to my app",
-  //   html,
-  // });
+  transporter.sendMail({
+    to: registerBody.body.email,
+    subject: "welcome to Eventure",
+    html,
+  });
 
   return newUser;
 };
