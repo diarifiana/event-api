@@ -10,7 +10,10 @@ export const createTransactionController = async (
   next: NextFunction
 ) => {
   try {
-    const result = await createTransactionService(req.body);
+    const result = await createTransactionService(
+      req.body,
+      Number(res.locals.id)
+    );
     res.status(200).send(result);
   } catch (error) {
     next(error);

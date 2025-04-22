@@ -3,8 +3,12 @@ import prisma from "../../config/prisma";
 import { ApiError } from "../../utils/api-error";
 import { validateCoupon } from "../../validators/validateCoupon";
 import { validateVoucher } from "../../validators/validateVoucher";
+import { validatePoint } from "../../validators/validatePoint";
 
-export const createTransactionService = async (body: Transaction) => {
+export const createTransactionService = async (
+  body: Transaction,
+  authUserId: number
+) => {
   const ticket = await prisma.ticket.findFirst({
     where: { id: body.ticketId },
   });
@@ -19,14 +23,15 @@ export const createTransactionService = async (body: Transaction) => {
 
   const couponAmount = validateCoupon(body);
   const voucherAmount = validateVoucher(body);
+  const totalPoints = validatePoint(body);
 
   // calculate A = qty * ticket
   // calculate B = coupon amount + voucher amount
   // jika A < B, throw error
 
   const totalToPay =
-    ticket.price * body.qty - ((await couponAmount) + (await voucherAmount));
-
+    ticket.price * body.qty -
+    ((await couponAmount) + (await voucherAmount) + (await totalPoints));
   if (totalToPay < 0) {
     throw new ApiError("Discount cannot be claimed", 400);
   }
@@ -53,13 +58,20 @@ export const createTransactionService = async (body: Transaction) => {
       });
     }
 
+    if ((await totalPoints) > 0) {
+      await tx.pointDetail.update({
+        where: { userId: body.userId },
+        data: { amount: 0 },
+      });
+    }
+
     await tx.ticket.update({
       where: { id: body.ticketId },
       data: { qty: { decrement: body.qty } },
     });
 
     return await tx.transaction.create({
-      data: { ...body, totalAmount: totalToPay },
+      data: { ...body, totalAmount: totalToPay, userId: authUserId },
     });
   });
 
